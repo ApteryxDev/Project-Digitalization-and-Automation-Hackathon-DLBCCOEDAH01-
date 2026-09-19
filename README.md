@@ -1,285 +1,687 @@
 # 💎 Jewelry Inventory Automation
 
-A functional Flask prototype for barcode-based jewelry identification, inventory adjustment, label generation, and restocking support with Shopify integration.
+> **Project: Digitalization and Automation Hackathon — DLBCCOEDAH01**  
+> Bachelor of Applied Artificial Intelligence · IU International University
 
-IU International University of Applied Sciences · DLBCCOEDAH01 · Project: Digitalization and Automation Hackathon
+A lightweight inventory automation prototype designed for a real-world jewelry retail workflow.
+
+The application connects product identification, Shopify inventory data, label generation, stock adjustment, and restocking support into a single browser-based interface.
 
 ---
 
-## 🎯 Project objective
+## 🎯 Project Objective
 
-This repository implements a prototype for reducing repetitive manual work in a jewelry shop. Staff can identify an item from its existing 8-digit barcode, retrieve the associated product data, adjust inventory, prepare printable labels, and review simple restocking recommendations from one interface.
+Jewelry inventory management can involve a surprising amount of repetitive manual work.
 
-The prototype provides two data modes:
+Products stored individually in jewelry boxes need to be identified, matched with the correct product record, checked against inventory, labeled correctly, and eventually considered for restocking.
 
-- **Demo mode:** runs locally with fictional jewelry products and generated product images.
-- **Shopify API mode:** retrieves product and inventory information from Shopify using the product variant barcode as the primary identifier.
+The objective of this prototype is to demonstrate how this workflow can be partially automated using:
 
-> The prototype focuses on the Phase 2 implementation: converting the proposed To-Be process into a working proof of concept that can be demonstrated and evaluated.
+- **8-digit barcode identification**
+- **Shopify Admin API integration**
+- **Automatic product and variant retrieval**
+- **Inventory adjustment**
+- **PDF jewelry-tag generation**
+- **A4 product/box-label generation**
+- **Sales-based restocking recommendations**
+- **A self-contained Demo Mode for testing**
 
-## 🧭 Workflow at a glance
+The prototype focuses on reducing repetitive product searches and manual label preparation while keeping a human operator in control of inventory changes.
+
+---
+
+## ✨ Features
+
+| Feature | Description |
+|---|---|
+| 🔎 Barcode scanning | Identifies products using their exact 8-digit barcode |
+| 🛍️ Shopify integration | Retrieves live product, variant, price, image and inventory information |
+| 🧪 Demo Mode | Runs the complete prototype without Shopify credentials |
+| 🖼️ Product images | Displays product images alongside scanned inventory |
+| ➕ Inventory adjustment | Allows proposed stock changes before publishing |
+| 🏷️ Jewelry tags | Generates small fold-over PDF tags for individual jewelry items |
+| 📄 Box labels | Generates larger product labels arranged on configurable A4 sheets |
+| 📊 Restocking | Calculates target stock and suggested reorder quantities |
+| 🔐 Environment configuration | Keeps Shopify credentials outside the repository |
+
+---
+
+## 🏗️ Architecture at a Glance
 
 ```text
-                         8-digit barcode
-                               │
-                               ▼
-                    ┌──────────────────────┐
-                    │ Flask web interface  │
-                    │ scan · select · edit │
-                    └──────────┬───────────┘
-                               │
-                    ┌──────────▼───────────┐
-                    │ Data source          │
-                    │ Demo / Shopify API   │
-                    └──────────┬───────────┘
-                               │
-              ┌────────────────┼────────────────┐
-              ▼                ▼                ▼
-       Product lookup    Inventory update   Sales history
-              │                │                │
-              └────────────────┼────────────────┘
-                               ▼
-                    ┌──────────────────────┐
-                    │ Automation outputs   │
-                    │ labels · restocking  │
-                    └──────────────────────┘
+                        ┌──────────────────────┐
+                        │      User / Staff    │
+                        └──────────┬───────────┘
+                                   │
+                            Scan 8-digit barcode
+                                   │
+                                   ▼
+                    ┌────────────────────────────┐
+                    │        Flask Web App       │
+                    │                            │
+                    │  Scanning                  │
+                    │  Inventory adjustment      │
+                    │  Label generation          │
+                    │  Restocking calculations   │
+                    └─────────────┬──────────────┘
+                                  │
+                    ┌─────────────┴─────────────┐
+                    │                           │
+                    ▼                           ▼
+          ┌──────────────────┐        ┌──────────────────┐
+          │    Demo Mode     │        │   Shopify API    │
+          │                  │        │                  │
+          │ Fictional data   │        │ Products         │
+          │ Images           │        │ Variants         │
+          │ Inventory        │        │ Inventory        │
+          │ Sales history    │        │ Orders           │
+          └────────┬─────────┘        └────────┬─────────┘
+                   │                           │
+                   └─────────────┬─────────────┘
+                                 │
+                                 ▼
+                    ┌──────────────────────────┐
+                    │      PDF Generation      │
+                    │                          │
+                    │ Small jewelry tags       │
+                    │ A4 box/product labels    │
+                    └──────────────────────────┘
 ```
 
-### Request flow
+---
 
-1. A barcode is entered manually or with a barcode scanner.
-2. The application validates that it contains exactly eight numeric digits.
-3. Demo mode searches the bundled sample catalogue; API mode queries Shopify.
-4. Product information is displayed together with the current inventory quantity.
-5. Inventory changes remain proposed locally until **Publish inventory** is selected.
-6. Selected products can be rendered as small fold-over PDF tags or A4 box-label sheets.
-7. The restocking view combines current inventory and six-month sales data to calculate a suggested order quantity.
+## 📸 Prototype in Action
 
-## 🧩 Application components
+### 🔎 Inventory Scanning
 
-| Component | Responsibility | Design rationale |
-| --- | --- | --- |
-| Flask | Web application and API routes | Small, readable Python backend suitable for a prototype |
-| Shopify Admin GraphQL API | Product, inventory and order data | Integrates with the shop's existing commerce platform |
-| Demo catalogue | Offline demonstration data | Makes the complete workflow reproducible without credentials |
-| ReportLab | PDF and Code 128 generation | Produces physical-size printable labels directly in Python |
-| HTML / CSS / JavaScript | Browser interface | Keeps scanning, inventory, printing and restocking in one workflow |
-| python-dotenv | Local configuration | Keeps Shopify credentials outside source code |
+Products are identified through their **8-digit barcode**.
 
-## 🗂️ Repository structure
+When running in Shopify API mode, the application searches the corresponding Shopify variant and retrieves information such as:
+
+- Product name
+- Variant/options
+- Barcode
+- Price
+- Product image
+- Current inventory quantity
+
+Inventory adjustments can then be prepared using the `+` and `−` controls.
+
+Changes are not immediately written to Shopify. The user first defines the proposed quantity and explicitly selects **Publish inventory**.
+
+![Inventory scanning](pictures%20of%20implementation/Screenshot%202026-09-19%20at%2018.50.02.png)
+
+---
+
+### 🏷️ Automated Label Generation
+
+Scanned products can be selected individually before labels are generated.
+
+The prototype supports two separate label workflows:
+
+1. **Small fold-over jewelry tags**
+2. **Larger box/product labels**
+
+![Labels and printing](pictures%20of%20implementation/Screenshot%202026-09-19%20at%2018.49.53.png)
+
+---
+
+### 📊 Restocking Support
+
+The Restocking interface combines inventory information with sales activity from the previous six months.
+
+For each scanned product, the prototype calculates:
+
+- Current inventory
+- Units sold during the previous six months
+- Average monthly sales
+- Target stock
+- Suggested reorder quantity
+
+![Restocking](pictures%20of%20implementation/Screenshot%202026-09-19%20at%2018.50.11.png)
+
+---
+
+## 💍 Real-World Context
+
+The prototype was designed around an existing jewelry inventory workflow.
+
+Products are stored individually in transparent boxes and accompanied by printed product labels containing identifying information, product imagery, price and a barcode.
+
+![Existing jewelry inventory](pictures%20of%20implementation/IMG_3240.jpeg)
+
+The goal is therefore not to replace the physical organization of the inventory, but to automate some of the repetitive digital work surrounding it.
+
+---
+
+## 🏷️ Label Workflows
+
+### Small Fold-Over Jewelry Tag
+
+Small jewelry tags are generated as individual PDF pages designed for compact fold-over labels.
+
+The generated tag contains two logical faces:
+
+```text
+┌───────────────────────┬────────────────────────┐
+│                       │                        │
+│      ||||||||||       │       39.00 EUR        │
+│       16023451        │  BAGUE PERFECT COUPLE  │
+│                       │         ACIER          │
+│                       │                        │
+└───────────────────────┴────────────────────────┘
+       Barcode side              Product side
+```
+
+The barcode side contains:
+
+- Code 128 barcode
+- Exact 8-digit barcode number
+
+The product side contains:
+
+- Price
+- Product name
+- Variant/options when available
+
+PDF was selected for this workflow because it provides a convenient previewable and printer-independent output while remaining suitable for printing through a Zebra printer driver.
+
+---
+
+### 📦 A4 Box / Product Labels
+
+Larger labels are generated on a configurable A4 sheet.
+
+Each label can contain:
+
+- Product name
+- Variant information
+- `STOCK` indicator
+- Product image
+- Price
+- Code 128 barcode
+- Human-readable 8-digit barcode
+
+The number of rows and columns can be configured directly from the application.
+
+This allows the same inventory information to be transformed into larger labels suitable for the physical jewelry boxes.
+
+---
+
+## 🔄 Application Workflow
+
+```text
+Barcode
+   │
+   ▼
+Validate 8 digits
+   │
+   ▼
+Search product
+   │
+   ├──────── Demo Mode ────────► Local demo dataset
+   │
+   └──────── API Mode ─────────► Shopify Admin API
+                                      │
+                                      ▼
+                              Product / Variant
+                              Price / Image
+                              Inventory
+                                      │
+                                      ▼
+                              Scanned-item list
+                                      │
+                    ┌─────────────────┼─────────────────┐
+                    │                 │                 │
+                    ▼                 ▼                 ▼
+             Adjust stock       Generate labels    Restocking
+                    │                 │                 │
+                    ▼                 ▼                 ▼
+             Publish quantity   PDF output       Reorder suggestion
+```
+
+---
+
+## 🧪 Demo Mode
+
+The project includes a complete **Demo Mode**, allowing the prototype to be demonstrated without access to a Shopify store.
+
+Demo Mode includes fictional jewelry products with:
+
+- 8-digit barcodes
+- Product names
+- Variants
+- Prices
+- Inventory quantities
+- Six-month sales values
+- Product images
+
+Example demo barcodes include:
+
+```text
+10010101
+10010102
+20014101
+30008101
+40022001
+50033001
+60044001
+70055001
+80066001
+90077001
+```
+
+Inventory modifications made in Demo Mode are kept in memory for the current application session.
+
+This makes the repository independently testable without exposing or requiring production credentials.
+
+---
+
+## 🛍️ Shopify API Mode
+
+API Mode connects the prototype to Shopify using the **Shopify Admin GraphQL API**.
+
+The barcode is treated as the primary product identifier.
+
+This is intentional: the physical inventory uses **exactly 8 numeric digits**, while SKU values may be empty.
+
+```text
+Physical barcode
+       │
+       ▼
+   16023451
+       │
+       ▼
+Shopify variant search
+       │
+       ▼
+Product + variant + inventory
+```
+
+The application therefore does not depend on SKU availability.
+
+---
+
+## 📦 Inventory Adjustment
+
+Inventory changes follow a deliberate two-stage process.
+
+Pressing `+` or `−` changes only the **proposed inventory quantity** shown in the interface.
+
+It does **not** immediately modify Shopify.
+
+```text
+Current inventory: 2
+
+        −    2    +
+
+             │
+             ▼
+
+Proposed inventory: 3
+
+             │
+             ▼
+
+      Publish inventory
+
+             │
+             ▼
+
+        Shopify API
+```
+
+This reduces the risk of accidental inventory writes while scanning or checking physical stock.
+
+In Demo Mode, the same interface updates the in-memory demonstration dataset.
+
+---
+
+## 📈 Restocking Logic
+
+The prototype includes a simple rule-based restocking model.
+
+Average monthly sales are calculated from the previous six months:
+
+```text
+Average monthly sales = units sold during 6 months / 6
+```
+
+Target stock is then estimated using:
+
+```text
+Target stock =
+ceil(
+    average monthly sales
+    × months of coverage
+    × safety factor
+)
+```
+
+Finally:
+
+```text
+Recommended order =
+max(0, target stock - current inventory)
+```
+
+Default parameters:
+
+```text
+Months of coverage: 3
+Safety factor:      1.20
+```
+
+For example:
+
+```text
+Sold during 6 months = 18 units
+
+Average monthly sales
+= 18 / 6
+= 3 units
+
+Target
+= ceil(3 × 3 × 1.20)
+= 11 units
+
+Current inventory
+= 4 units
+
+Recommended order
+= 11 - 4
+= 7 units
+```
+
+This is intentionally a transparent rule-based approach suitable for a prototype.
+
+More sophisticated forecasting could be incorporated in future iterations.
+
+---
+
+## 📁 Repository Structure
 
 ```text
 jewelry_inventory_phase2/
+│
 ├── app.py
 ├── config.py
 ├── requirements.txt
+├── README.md
 ├── .env.example
+├── .gitignore
+│
 ├── services/
+│   ├── __init__.py
 │   ├── demo_data.py
 │   ├── inventory.py
 │   ├── labels.py
 │   └── shopify.py
+│
+├── templates/
+│   └── index.html
+│
 ├── static/
 │   ├── app.js
 │   ├── style.css
-│   └── demo/             # fictional demo product images
-├── templates/
-│   └── index.html
-└── generated/
+│   └── demo/
+│       ├── 10010101.png
+│       ├── 10010102.png
+│       ├── 20014101.png
+│       ├── 30008101.png
+│       ├── 40022001.png
+│       ├── 50033001.png
+│       ├── 60044001.png
+│       ├── 70055001.png
+│       ├── 80066001.png
+│       └── 90077001.png
+│
+├── generated/
+│   └── .gitkeep
+│
+└── pictures of implementation/
+    ├── Screenshot 2026-09-19 at 18.49.53.png
+    ├── Screenshot 2026-09-19 at 18.50.02.png
+    ├── Screenshot 2026-09-19 at 18.50.11.png
+    └── IMG_3240.jpeg
 ```
 
-## ✨ Prototype highlights
+---
 
-| Area | Implementation |
-| --- | --- |
-| Identification | Exact 8-digit barcode lookup; leading zeroes remain valid |
-| Demo | Ten fictional jewelry variants with images, prices, stock and sales history |
-| Shopify | Barcode-based variant lookup through the Admin GraphQL API |
-| Inventory | `+` / `-` proposed quantity followed by an explicit publish action |
-| Small tags | **50 × 12 mm PDF**, one physical fold-over tag per PDF page |
-| Tag preview | Browser PDF preview before downloading or printing |
-| Box labels | Configurable A4 PDF sheet with product image, price and Code 128 barcode |
-| Restocking | Six-month sales average, coverage target and safety factor |
-| Security | Secrets loaded from `.env`; credentials are not intended for Git |
+## 🧰 Technology Stack
 
-## 🏷️ Small fold-over PDF tags
+| Component | Technology |
+|---|---|
+| Backend | Python |
+| Web framework | Flask |
+| Frontend | HTML / CSS / JavaScript |
+| Commerce platform | Shopify |
+| API | Shopify Admin GraphQL API |
+| HTTP client | Requests |
+| PDF generation | ReportLab |
+| Barcode format | Code 128 |
+| Configuration | python-dotenv |
+| Version control | Git / GitHub |
 
-The small jewelry tag is deliberately generated as a PDF rather than relying on a Zebra-specific command file.
+---
 
-Each PDF page is **50 × 12 mm** and represents one physical fold-over adhesive tag:
+## 🚀 Running the Project
 
-```text
-┌───────────────────────┬───────────────────────┐
-│      CODE 128         │       79.90 EUR       │
-│      10010101         │    Solitaire Ring     │
-│                       │   Gold · Size 54      │
-└───────────────────────┴───────────────────────┘
-       barcode face             product face
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/ApteryxDev/Project-Digitalization-and-Automation-Hackathon-DLBCCOEDAH01-.git
+
+cd Project-Digitalization-and-Automation-Hackathon-DLBCCOEDAH01-
 ```
 
-The browser can preview the generated PDF before it is downloaded. Printing should use **Actual Size / 100% scale** so the physical dimensions are preserved. A compatible Zebra printer can print the PDF through its operating-system printer driver; the output is not tied to a specific Zebra command language.
-
-## 🖼️ A4 box labels
-
-Box labels remain a separate A4 workflow. Each label can include:
-
-- product name and variant;
-- demo or Shopify product image;
-- inventory marker;
-- price;
-- Code 128 barcode;
-- exact 8-digit human-readable barcode.
-
-Rows and columns are configurable so the prototype can be adapted to different pre-cut A4 sticker sheets.
-
-## 📦 Restocking logic
-
-The prototype uses a deliberately simple and explainable rule:
-
-```text
-average monthly sales = sold during previous 6 months / 6
-
-target stock =
-ceil(average monthly sales × months of coverage × safety factor)
-
-recommended order =
-max(0, target stock - current inventory)
-```
-
-Default configuration:
-
-```text
-months of coverage = 3
-safety factor      = 1.20
-```
-
-This is intended as a transparent proof-of-concept rule rather than a production demand-forecasting model.
-
-## 🚀 Run locally
-
-### Prerequisites
-
-- Python 3.10+
-- `pip`
-- a modern web browser
-- Shopify credentials only if API mode is required
-
-### 1. Create a virtual environment
+### 2. Create a virtual environment
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-### 2. Install dependencies
+### 3. Install dependencies
 
 ```bash
-python -m pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
-### 3. Configure the application
+### 4. Configure the environment
 
-Copy the example environment file:
+Copy the example configuration:
 
 ```bash
 cp .env.example .env
 ```
 
-For a credentials-free demonstration:
+For Demo Mode, Shopify credentials are not required.
 
-```env
-DATA_MODE=demo
-```
+For API Mode, configure the required Shopify values locally in `.env`.
 
-For Shopify API mode, add the shop domain, client ID and client secret to the local `.env` file. Never commit the real `.env` file.
-
-### 4. Start Flask
+### 5. Start the application
 
 ```bash
 python app.py
 ```
 
-Open:
+The development application is then available at:
 
 ```text
 http://127.0.0.1:5001
 ```
 
-## ✅ Demo workflow
+---
 
-Demo mode can be tested immediately. Example barcodes include:
+## 🔐 Security by Design
+
+Sensitive Shopify credentials are loaded through environment variables rather than hard-coded into the source code.
+
+The repository contains:
 
 ```text
-10010101  Solitaire Ring - Gold, Size 54
-20014101  Drop Earrings - Gold
-40022001  Jupiter Necklace - Steel
-80066001  Classic Hoops - Gold
+.env.example
 ```
 
-A typical demonstration is:
+but the real:
 
-1. Select **Demo**.
-2. Scan or click `10010101`.
-3. Adjust its proposed inventory with `+` or `-`.
-4. Publish the inventory change.
-5. Open **Labels & Printing**.
-6. Preview the 50 × 12 mm fold-over PDF.
-7. Download the same PDF if required.
-8. Open **Restocking** to review the calculated order recommendation.
-
-## 🔐 Security by design
-
-The repository contains `.env.example`, not production credentials. Shopify secrets should exist only in the local `.env` file, which is ignored by Git.
-
-Before publishing the repository, verify:
-
-```bash
-git status
-git check-ignore .env
+```text
+.env
 ```
 
-If a real credential has ever been exposed publicly or shared outside its intended environment, rotate it before using the repository.
+is excluded through `.gitignore`.
 
-## ⚖️ Design decisions and trade-offs
+The application also keeps API operations server-side so Shopify credentials are never exposed directly to browser JavaScript.
 
-### Why barcode instead of SKU?
+Before publishing or sharing a deployment, any previously exposed API credential should be rotated.
 
-The shop workflow uses physical 8-digit barcodes while Shopify SKU values may be empty. The barcode is therefore treated as the primary lookup identifier throughout the prototype.
+---
 
-### Why PDF for the small tag?
+## ⚙️ Configuration
 
-PDF gives staff a visible preview and works through a normal printer-driver workflow. It also preserves the intended physical page size. This makes the prototype less dependent on one Zebra model or printer language while still allowing a Zebra label printer to be used.
+The application supports environment-based configuration for values such as:
 
-### Why keep a Demo mode?
+```text
+DATA_MODE
+SHOPIFY_SHOP
+SHOPIFY_CLIENT_ID
+SHOPIFY_CLIENT_SECRET
+SHOPIFY_API_VERSION
+RESTOCK_MONTHS_COVER
+RESTOCK_SAFETY_FACTOR
+```
 
-The project can be evaluated without access to the live store or credentials. The same interface and main automation steps can therefore be demonstrated safely and repeatedly.
+This keeps environment-specific settings separate from application logic.
 
-### What would be added in production?
+---
 
-- supplier API integration and purchase-order generation;
-- forecasting based on longer sales history and seasonality;
-- explicit multi-location inventory selection;
-- authentication and staff roles;
-- persistent database storage for scan sessions and audit history;
-- printer calibration profiles for the exact label stock and Zebra model;
-- automated tests and deployment pipeline.
+## 📊 Prototype KPIs
 
-## 📌 Portfolio alignment
+The prototype was designed around operational indicators relevant to the original inventory process.
 
-The prototype provides implementation evidence for the Phase 2 portfolio through:
+| KPI | What the prototype addresses |
+|---|---|
+| Item identification time | Barcode lookup replaces manual product searching |
+| Tag generation time | Product information is transformed automatically into printable labels |
+| Inventory-record error rate | Barcode-based identification reduces manual matching |
+| Low-stock detection lag | Restocking logic surfaces stock requirements from inventory and sales data |
+| Manual product lookups | Shopify product retrieval is triggered directly from the physical barcode |
 
-- a working barcode-based To-Be process;
-- a selectable offline demonstration and live Shopify integration;
-- inventory adjustment with explicit publication;
-- automated PDF label generation;
-- a restocking calculation based on sales and stock data;
-- a structure that can be tested against identification time, label-generation time, inventory-record errors, low-stock detection lag, and manual product lookups.
+The repository does not assume fabricated baseline measurements.
 
-No baseline KPI measurements are fabricated in the repository; measurements can be recorded during prototype testing.
+Actual KPI improvement should be evaluated by comparing the prototype against the existing manual workflow under real operating conditions.
+
+---
+
+## 🧠 Design Decisions
+
+### Barcode instead of SKU
+
+The physical inventory already uses an 8-digit barcode system.
+
+Shopify SKU fields may be empty, so the barcode is used as the authoritative identifier throughout the prototype.
+
+### PDF instead of printer-specific output
+
+The small jewelry tags are generated as PDF files rather than requiring direct printer-language output.
+
+This provides:
+
+- Browser preview
+- Easy downloading
+- Printer independence
+- Compatibility with a Zebra printer through its normal print driver
+- Easier testing during prototype development
+
+### Explicit inventory publishing
+
+Inventory is not updated every time `+` or `−` is pressed.
+
+The operator must explicitly publish the proposed quantity.
+
+This separates **counting** from **committing an inventory change**.
+
+### Demo and API modes
+
+The same interface supports both fictional demonstration data and real Shopify information.
+
+This allows the prototype to remain reproducible while still demonstrating integration with an operational commerce platform.
+
+---
+
+## 🚧 Limitations
+
+This repository represents a **proof of concept**, not a production inventory-management system.
+
+Current limitations include:
+
+- Restocking uses a simple historical-sales formula rather than demand forecasting
+- Demo inventory is stored in memory
+- The Flask development server is intended for local demonstration
+- Printer calibration can vary depending on the physical label stock and Zebra model
+- Shopify inventory behavior can depend on store locations and API permissions
+- Supplier ordering is not automated
+
+---
+
+## 🔮 Future Improvements
+
+Possible extensions include:
+
+- Time-series demand forecasting
+- Seasonal sales modelling
+- Supplier API integration
+- Automatic purchase-order generation
+- Supplier email automation
+- Multi-location inventory management
+- Persistent local database for offline workflows
+- Authentication and user roles
+- Scan-history analytics
+- Inventory discrepancy reports
+- Automatic low-stock notifications
+- Mobile barcode-scanner interface
+- Dedicated Zebra printer calibration profiles
+
+A future version could replace the current rule-based restocking calculation with a forecasting model trained on historical product demand.
+
+---
+
+## 🎓 Project Context
+
+This prototype was developed for:
+
+**Project: Digitalization and Automation Hackathon**  
+**Course:** `DLBCCOEDAH01`  
+**Programme:** Bachelor of Applied Artificial Intelligence  
+**Institution:** IU International University
+
+The project demonstrates the transition from an existing manual business workflow toward a partially automated digital process.
+
+The implementation combines:
+
+- Process digitalization
+- API integration
+- Inventory automation
+- Barcode-based identification
+- Automated document generation
+- Basic decision-support logic
+- Human-controlled inventory updates
+
+---
 
 ## 👤 Author
 
-**ApteryxDev**
+**Alp Ege Yalcin**  
+Applied Artificial Intelligence  
+IU International University
 
-Bachelor of Applied Artificial Intelligence  
-IU International University of Applied Sciences
+GitHub: **[@ApteryxDev](https://github.com/ApteryxDev)**
+
+---
+
+## 📄 License
+
+This repository was created as an academic prototype for the IU **Digitalization and Automation Hackathon**.
+
+Product and store data used through API Mode belong to their respective owners. Demo data is included solely for demonstration and testing purposes.
