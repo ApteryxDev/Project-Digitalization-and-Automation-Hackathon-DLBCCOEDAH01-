@@ -109,7 +109,7 @@ Inventory adjustments can then be prepared using the `+` and `−` controls.
 
 Changes are not immediately written to Shopify. The user first defines the proposed quantity and explicitly selects **Publish inventory**.
 
-![Inventory scanning](pictures%20of%20implementation/Screenshot%202026-09-19%20at%2018.50.02.png)
+![Inventory scanning](Pictures%20of%20implementation/Screenshot%202026-09-19%20at%2018.50.02.png)
 
 ---
 
@@ -122,7 +122,7 @@ The prototype supports two separate label workflows:
 1. **Small fold-over jewelry tags**
 2. **Larger box/product labels**
 
-![Labels and printing](pictures%20of%20implementation/Screenshot%202026-09-19%20at%2018.49.53.png)
+![Labels and printing](Pictures%20of%20implementation/Screenshot%202026-09-19%20at%2018.49.53.png)
 
 ---
 
@@ -138,7 +138,7 @@ For each scanned product, the prototype calculates:
 - Target stock
 - Suggested reorder quantity
 
-![Restocking](pictures%20of%20implementation/Screenshot%202026-09-19%20at%2018.50.11.png)
+![Restocking](Pictures%20of%20implementation/Screenshot%202026-09-19%20at%2018.50.11.png)
 
 ---
 
@@ -148,7 +148,7 @@ The prototype was designed around an existing jewelry inventory workflow.
 
 Products are stored individually in transparent boxes and accompanied by printed product labels containing identifying information, product imagery, price and a barcode.
 
-![Existing jewelry inventory](pictures%20of%20implementation/IMG_3240.jpeg)
+![Existing jewelry inventory](Pictures%20of%20implementation/IMG_3240.jpeg)
 
 The goal is therefore not to replace the physical organization of the inventory, but to automate some of the repetitive digital work surrounding it.
 
