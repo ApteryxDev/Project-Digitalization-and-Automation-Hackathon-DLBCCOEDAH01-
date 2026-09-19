@@ -680,6 +680,20 @@ GitHub: **[@ApteryxDev](https://github.com/ApteryxDev)**
 
 ---
 
+## ✅ Physical Implementation
+
+The prototype was developed around the jewelry store's existing physical inventory and was tested using the same type of individually stored and labeled jewelry items used in the real workflow.
+
+The photograph below shows the physical inventory boxes and labels that motivated the digitalization process. It provides a direct link between the software prototype and its intended real-world use: identifying jewelry through barcodes, retrieving product information, maintaining inventory quantities, and generating standardized labels.
+
+![Physical implementation of the jewelry inventory system](Pictures%20of%20implementation/IMG_3240.png)
+
+The implemented prototype therefore connects the physical and digital inventory workflows:
+
+**Physical jewelry item → 8-digit barcode → Shopify identification → inventory management → automated label generation → restocking support**
+
+---
+
 ## 📄 License
 
 This repository was created as an academic prototype for the IU **Digitalization and Automation Hackathon**.
