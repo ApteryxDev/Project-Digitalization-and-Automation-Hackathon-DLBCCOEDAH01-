@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 generated/*
 !generated/.gitkeep
+.DS_Store
