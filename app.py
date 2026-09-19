@@ -12,16 +12,25 @@ shop = ShopifyService()
 SCANNED = []
 
 def effective_mode():
+    """Return the data source selected for the current browser session.
+
+    I kept the demo mode after connecting Shopify because it is useful for
+    testing the interface and label workflow without API credentials.
+    """
     mode = session.get("data_mode", config.DATA_MODE)
     return mode if mode in ("demo", "api") else "demo"
 
 def find_product(code):
-    return shop.find_barcode(code) if effective_mode() == "api" else find_demo_product(code)
+    """Look up one barcode using the currently selected data source."""
+    if effective_mode() == "api":
+        return shop.find_barcode(code)
+    return find_demo_product(code)
 
 def selected(codes):
+    """Return the scanned products selected for label generation."""
     source = SCANNED + (DEMO_PRODUCTS if effective_mode() == "demo" else [])
-    by_code = {x["barcode"]: x for x in source}
-    return [by_code[c] for c in codes if c in by_code]
+    products_by_barcode = {item["barcode"]: item for item in source}
+    return [products_by_barcode[code] for code in codes if code in products_by_barcode]
 
 @app.get("/")
 def home():
@@ -71,9 +80,9 @@ def remove(code):
 
 @app.post("/api/inventory/update")
 def inventory_update():
-    d = request.get_json() or {}
-    code = str(d.get("barcode", "")).strip()
-    qty = d.get("quantity")
+    payload = request.get_json() or {}
+    code = str(payload.get("barcode", "")).strip()
+    qty = payload.get("quantity")
     if not valid_barcode(code) or type(qty) is not int or qty < 0:
         return jsonify(error="Valid 8-digit barcode and integer quantity >= 0 required."), 400
     try:
@@ -110,9 +119,9 @@ def a4():
 
 @app.post("/labels/small.pdf")
 def small_pdf():
-    d = request.get_json(silent=True) or {}
-    codes = d.get("codes") or request.form.getlist("codes")
-    copies = int(d.get("copies") or request.form.get("copies") or 1)
+    payload = request.get_json(silent=True) or {}
+    codes = payload.get("codes") or request.form.getlist("codes")
+    copies = int(payload.get("copies") or request.form.get("copies") or 1)
     items = selected(codes)
     if not items:
         return jsonify(error="Select at least one item."), 400
