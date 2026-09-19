@@ -1,0 +1,25 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<title>Jewelry Inventory Automation</title><link rel="stylesheet" href="/static/style.css"></head>
+<body><header>
+<h1>Jewelry Inventory Automation</h1>
+<div class="modebar"><label>Data source <select id="modeSelect"><option value="demo">Demo</option><option value="api">Shopify API</option></select></label><strong id="connectionStatus">Checking connection...</strong></div>
+<nav><button class="tab active" data-tab="scan">Scanning</button><button class="tab" data-tab="labels">Labels & Printing</button><button class="tab" data-tab="restock">Restocking</button></nav>
+</header><main>
+<section id="scan" class="panel active"><h2>Scan inventory</h2>
+<div id="demoSamples" hidden><p><b>Demo products</b> - click an item to scan it.</p><div id="demoButtons"></div></div>
+<form id="scanForm"><input id="barcode" maxlength="8" pattern="[0-9]{8}" inputmode="numeric" placeholder="8-digit barcode" autofocus><button>Scan</button></form>
+<p id="scanMsg" class="msg"></p><button id="clearList" type="button">Clear scanned list</button><div id="scanned"></div></section>
+
+<section id="labels" class="panel"><h2>Labels & Printing</h2><div id="printItems"></div>
+<div class="printgrid">
+<article><h3>Small fold-over jewelry tags</h3><p>50 x 12 mm PDF. Left face: Code 128 + barcode. Right face: price, product and variant.</p>
+<label>Copies <input id="copies" type="number" value="1" min="1"></label>
+<div class="actions"><button id="previewSmall">Preview PDF</button><button id="downloadSmall">Download PDF</button></div>
+<div class="pdfPreview"><iframe id="smallPreview" title="Small jewelry tag PDF preview"></iframe></div></article>
+<article><h3>Box stickers - A4 sheet</h3><form id="a4Form" method="post" action="/labels/a4.pdf" target="_blank"><div id="a4Codes"></div>
+<label>Rows <input name="rows" type="number" value="4" min="1"></label><label>Columns <input name="columns" type="number" value="3" min="1"></label>
+<button>Generate A4 box stickers</button></form></article></div><p id="printMsg" class="msg"></p></section>
+
+<section id="restock" class="panel"><h2>Restocking</h2><p>Based on current inventory and units sold during the previous six months.</p><button id="refreshRestock">Refresh</button><div id="restockList"></div></section>
+</main><script src="/static/app.js?v=4"></script></body></html>
