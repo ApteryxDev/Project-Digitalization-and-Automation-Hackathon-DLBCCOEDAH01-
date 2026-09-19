@@ -148,7 +148,7 @@ The prototype was designed around an existing jewelry inventory workflow.
 
 Products are stored individually in transparent boxes and accompanied by printed product labels containing identifying information, product imagery, price and a barcode.
 
-![Existing jewelry inventory](Pictures%20of%20implementation/IMG_3240.jpeg)
+![Existing jewelry inventory](Pictures%20of%20implementation/IMG_3240.png)
 
 The goal is therefore not to replace the physical organization of the inventory, but to automate some of the repetitive digital work surrounding it.
 
