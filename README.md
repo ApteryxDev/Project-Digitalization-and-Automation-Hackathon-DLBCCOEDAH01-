@@ -696,6 +696,6 @@ The implemented prototype therefore connects the physical and digital inventory 
 
 ## 📄 License
 
-This repository was created as an academic prototype for the IU **Digitalization and Automation Hackathon**.
+This repository was created as an academic prototype for the IU **Digitalization and Automation Hackathon**. My own code is released under the [MIT License](LICENSE).
 
 Product and store data used through API Mode belong to their respective owners. Demo data is included solely for demonstration and testing purposes.
